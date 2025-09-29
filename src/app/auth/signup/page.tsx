@@ -37,6 +37,8 @@ export default function SignUp() {
       })
 
       if (response.ok) {
+        // Mark as first time user
+        localStorage.setItem('firstTimeUser', 'true')
         window.location.href = '/dashboard'
       } else {
         const data = await response.json()

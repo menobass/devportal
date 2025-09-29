@@ -26,6 +26,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if this is first login
+    const isFirstLogin = user.isFirstLogin
+
+    // Update first login status if needed
+    if (isFirstLogin) {
+      await User.findByIdAndUpdate(user._id, { isFirstLogin: false })
+    }
+
     // Generate JWT token
     const token = generateToken({
       userId: user._id.toString(),
@@ -40,7 +48,8 @@ export async function POST(request: NextRequest) {
           name: user.name, 
           email: user.email,
           tier: user.tier 
-        } 
+        },
+        isFirstLogin 
       },
       { status: 200 }
     )

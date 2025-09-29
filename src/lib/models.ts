@@ -13,6 +13,7 @@ export interface IUser extends Document {
   name?: string
   passwordHash: string
   tier: Tier
+  isFirstLogin: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -38,6 +39,10 @@ const UserSchema = new Schema<IUser>({
     type: String,
     enum: Object.values(Tier),
     default: Tier.FREE
+  },
+  isFirstLogin: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true,
