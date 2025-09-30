@@ -20,8 +20,10 @@ export default function Dashboard() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     fetchDashboardData()
   }, [])
 
@@ -40,8 +42,10 @@ export default function Dashboard() {
       const profileResponse = await fetch('/api/user/profile')
       if (profileResponse.ok) {
         const profileData = await profileResponse.json()
-        // Check if this is first login from localStorage (since we update DB immediately)
-        const isFirstTime = localStorage.getItem('firstTimeUser') === 'true'
+        // Check if this is first login from localStorage (only on client side)
+        const isFirstTime = mounted && typeof window !== 'undefined' 
+          ? localStorage.getItem('firstTimeUser') === 'true' 
+          : false
         setUserInfo({
           name: profileData.user.name || 'User',
           email: profileData.user.email,
@@ -49,7 +53,7 @@ export default function Dashboard() {
           isFirstLogin: isFirstTime
         })
         // Remove the flag after showing it once
-        if (isFirstTime) {
+        if (isFirstTime && typeof window !== 'undefined') {
           localStorage.removeItem('firstTimeUser')
         }
       }
@@ -60,6 +64,23 @@ export default function Dashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Prevent hydration mismatch by not rendering dynamic content until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto py-12 px-4">
+          <div className="bg-white rounded-lg shadow p-8">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/2 mb-6"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
