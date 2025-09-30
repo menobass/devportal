@@ -101,7 +101,7 @@ Simple, focused data models:
 
 ## � Microservice Integration
 
-Your brother's microservice can authenticate users by querying the same MongoDB:
+Any microservice can authenticate users by querying the same MongoDB:
 
 ```javascript
 // Example: Validate API key in your microservice
@@ -213,6 +213,3 @@ MIT License - build whatever you want with this!
 
 ---
 
-**Simple. Clean. Focused.** ✨
-
-Just what you need for API key management - nothing more, nothing less.
