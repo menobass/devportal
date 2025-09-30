@@ -5,17 +5,17 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          IPFS Cloud Portal
+          Developer API Portal
         </h1>
         <p className="text-xl text-gray-600 mb-8">
-          Your files on IPFS, simplified.
+          Generate and manage API keys for our services.
         </p>
         <div className="flex gap-4 justify-center">
           <Link 
             href="/auth/signup" 
             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Get Started
+            Create Developer Account
           </Link>
           <Link 
             href="/auth/login" 

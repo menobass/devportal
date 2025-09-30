@@ -4,21 +4,18 @@ import { useState, useEffect } from 'react'
 
 interface DashboardStats {
   apiKeysCount: number
-  filesCount: number
-  storageUsed: number
 }
 
 interface UserInfo {
   name: string
   email: string
+  tier: string
   isFirstLogin: boolean
 }
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
-    apiKeysCount: 0,
-    filesCount: 0,
-    storageUsed: 0
+    apiKeysCount: 0
   })
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
@@ -34,10 +31,9 @@ export default function Dashboard() {
       const keysResponse = await fetch('/api/keys')
       if (keysResponse.ok) {
         const keysData = await keysResponse.json()
-        setStats(prev => ({
-          ...prev,
+        setStats({
           apiKeysCount: keysData.keys?.length || 0
-        }))
+        })
       }
 
       // Fetch user profile to check first login status
@@ -49,6 +45,7 @@ export default function Dashboard() {
         setUserInfo({
           name: profileData.user.name || 'User',
           email: profileData.user.email,
+          tier: profileData.user.tier || 'FREE',
           isFirstLogin: isFirstTime
         })
         // Remove the flag after showing it once
@@ -56,9 +53,6 @@ export default function Dashboard() {
           localStorage.removeItem('firstTimeUser')
         }
       }
-
-      // TODO: Fetch files count and storage when we implement file upload
-      // For now, keep them as 0
 
     } catch (err) {
       setError('Failed to load dashboard data')
@@ -68,28 +62,22 @@ export default function Dashboard() {
     }
   }
 
-  const formatStorage = (bytes: number) => {
-    if (bytes === 0) return '0 MB'
-    const mb = bytes / (1024 * 1024)
-    return mb < 1 ? `${(bytes / 1024).toFixed(1)} KB` : `${mb.toFixed(1)} MB`
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-12 px-4">
         <div className="bg-white rounded-lg shadow p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            {userInfo?.isFirstLogin ? '🎉 Welcome to your Dashboard!' : `Welcome back${userInfo?.name ? `, ${userInfo.name}` : ''}!`}
+            {userInfo?.isFirstLogin ? '🎉 Welcome to your Developer Portal!' : `Welcome back${userInfo?.name ? `, ${userInfo.name}` : ''}!`}
           </h1>
           
           {userInfo?.isFirstLogin && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
               <h2 className="text-lg font-semibold text-green-800 mb-2">
-                ✅ Account Created Successfully!
+                ✅ Developer Account Created Successfully!
               </h2>
               <p className="text-green-700">
-                Your account has been created successfully. To change any information 
-                on your account, including subscription, passwords, etc. please visit your{' '}
+                Your developer account is ready! Generate API keys to start integrating with our services.
+                You can manage your account settings on your{' '}
                 <a href="/dashboard/profile" className="underline font-medium">
                   profile page
                 </a>.
@@ -100,7 +88,7 @@ export default function Dashboard() {
           {!userInfo?.isFirstLogin && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-blue-700">
-                Ready to upload files to IPFS? Manage your API keys and start building!
+                Manage your API keys and integrate with our services. Your keys authenticate your applications.
               </p>
             </div>
           )}
@@ -111,19 +99,8 @@ export default function Dashboard() {
             </div>
           )}
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-blue-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-blue-900 mb-2">Files</h3>
-              {loading ? (
-                <p className="text-2xl font-bold text-blue-600">...</p>
-              ) : (
-                <p className="text-2xl font-bold text-blue-600">{stats.filesCount}</p>
-              )}
-              <p className="text-sm text-blue-600">
-                {stats.filesCount === 0 ? 'No files uploaded yet' : 'files uploaded'}
-              </p>
-            </div>
-            
+          {/* API Keys Stats */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             <div className="bg-purple-50 p-6 rounded-lg">
               <h3 className="font-semibold text-purple-900 mb-2">API Keys</h3>
               {loading ? (
@@ -132,53 +109,78 @@ export default function Dashboard() {
                 <p className="text-2xl font-bold text-purple-600">{stats.apiKeysCount}</p>
               )}
               <p className="text-sm text-purple-600">
-                {stats.apiKeysCount === 0 ? 'No API keys generated' : 'active API keys'}
+                {stats.apiKeysCount === 0 ? 'No API keys generated yet' : 'active API keys'}
               </p>
             </div>
             
-            <div className="bg-green-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-green-900 mb-2">Storage</h3>
-              {loading ? (
-                <p className="text-2xl font-bold text-green-600">...</p>
-              ) : (
-                <p className="text-2xl font-bold text-green-600">{formatStorage(stats.storageUsed)}</p>
-              )}
-              <p className="text-sm text-green-600">of 1 GB used</p>
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <h3 className="font-semibold text-blue-900 mb-2">Account Tier</h3>
+              <p className="text-2xl font-bold text-blue-600">
+                {userInfo?.tier || 'FREE'}
+              </p>
+              <p className="text-sm text-blue-600">
+                {userInfo?.tier === 'PREMIUM' ? 'Premium developer account' : 'Free developer account'}
+              </p>
             </div>
           </div>
 
-          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 className="font-semibold text-yellow-800 mb-2">🚧 Coming Soon</h3>
-            <ul className="text-yellow-700 space-y-1">
-              <li>• File upload interface</li>
-              <li>• API key generation</li>
-              <li>• Usage analytics</li>
-              <li>• Account settings</li>
-            </ul>
+          {/* Quick Actions */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <a 
+                href="/dashboard/api-keys"
+                className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all"
+              >
+                <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2h-3m-3 7h3m-3 0a2 2 0 01-2-2m0 0a2 2 0 01-2-2m2 2v3"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Manage API Keys</h4>
+                  <p className="text-sm text-gray-600">Create, view, and manage your API keys</p>
+                </div>
+              </a>
+
+              <a 
+                href="/dashboard/profile"
+                className="flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all"
+              >
+                <div className="bg-purple-100 p-3 rounded-lg mr-4">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Account Settings</h4>
+                  <p className="text-sm text-gray-600">Update profile and account settings</p>
+                </div>
+              </a>
+            </div>
           </div>
 
-          <div className="mt-6 flex gap-4 flex-wrap">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              Upload Files (Coming Soon)
-            </button>
-            <a 
-              href="/dashboard/api-keys"
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Manage API Keys
-            </a>
-            <a 
-              href="/dashboard/profile"
-              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-            >
-              Account Profile
-            </a>
-            <a 
-              href="/" 
-              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-            >
-              Back to Home
-            </a>
+          {/* API Documentation */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">🚀 Ready to Integrate?</h3>
+            <p className="text-gray-700 mb-4">
+              Your API keys will authenticate requests to our microservices. Each key is stored securely 
+              and can be used across all our services.
+            </p>
+            <div className="flex gap-4 flex-wrap">
+              <a 
+                href="/dashboard/api-keys"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Generate First API Key
+              </a>
+              <a 
+                href="#" 
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
+              >
+                View Documentation
+              </a>
+            </div>
           </div>
         </div>
       </div>
