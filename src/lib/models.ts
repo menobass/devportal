@@ -92,17 +92,26 @@ const ApiKeySchema = new Schema<IApiKey>({
 // File Interface
 export interface IFile extends Document {
   _id: mongoose.Types.ObjectId
-  name: string
+  filename: string
+  originalName: string
   size: number
   mimeType: string
-  ipfsHash: string
-  userId: mongoose.Types.ObjectId
+  cid: string
+  ipfsNode?: string
+  user: mongoose.Types.ObjectId
+  uploadedAt: Date
   createdAt: Date
+  updatedAt: Date
 }
 
 // File Schema
 const FileSchema = new Schema<IFile>({
-  name: {
+  filename: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  originalName: {
     type: String,
     required: true,
     trim: true
@@ -116,15 +125,23 @@ const FileSchema = new Schema<IFile>({
     type: String,
     required: true
   },
-  ipfsHash: {
+  cid: {
     type: String,
     required: true,
     unique: true
   },
-  userId: {
+  ipfsNode: {
+    type: String,
+    trim: true
+  },
+  user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  uploadedAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true,
