@@ -32,6 +32,48 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# database files (if using local MongoDB)
+/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# API keys and sensitive files (extra safety)
+keys/
+secrets/
+*.key
+*.pem
+*.cert
 
 # vercel
 .vercel
@@ -39,3 +81,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temporary files
+tmp/
+temp/
